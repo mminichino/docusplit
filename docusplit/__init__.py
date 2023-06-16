@@ -22,10 +22,13 @@ class DocuSplit(object):
         p_data = self.get_depth(data_dict, self.depth)
         self.analyze(p_data, verbose)
 
-    def dump_to_json(self):
+    def dump_to_json(self, indent: bool = False):
         data_dict = xmltodict.parse(self.data)
         p_data = self.get_depth(data_dict, self.depth)
-        print(json.dumps(p_data))
+        if indent:
+            print(json.dumps(p_data, indent=2))
+        else:
+            print(json.dumps(p_data))
 
     def dump_flattened_json(self):
         data_dict = xmltodict.parse(self.data)

@@ -30,6 +30,7 @@ class Params(object):
         parser.add_argument("--key", action="store", help="Key to Extract and Remove")
         parser.add_argument("-v", "--verbose", action="store_true", help="Verbose")
         parser.add_argument("--depth", action="store", help="Start Depth", type=int, default=0)
+        parser.add_argument("-i", "--indent", action="store_true", help="Indent JSON Dump")
         self.args = parser.parse_args()
 
     @property
@@ -57,7 +58,7 @@ def manual_1(parameters):
                 d.split_json(parameters.base, parameters.dir)
         else:
             d = DocuSplit(contents, parameters.depth)
-            d.dump_to_json()
+            d.dump_to_json(parameters.indent)
     else:
         d = DocuSplit(contents, parameters.depth)
         d.dump_stats(parameters.verbose)
