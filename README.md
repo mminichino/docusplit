@@ -2,6 +2,17 @@
 
 Converts XML data to JSON and then either dumps the data or performs an analysis on the data struction.
 
+Setup:
+```
+python3 -m venv venv
+```
+```
+. venv/bin/activate
+```
+```
+pip3 install -r requirements.txt
+```
+
 Analyze a file:
 ````
 bin/docmgr --file ~/Downloads/DATA_012345.xml -v > ~/DATA_012345.dat
