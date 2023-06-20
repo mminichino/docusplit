@@ -37,3 +37,8 @@ Same example as above, but denote that there is am array element where you want 
 ```
 bin/docmgr --file ~/Downloads/DATA_012345.xml --dump --split --dir ~/data --base DATA_012345 --key 'data.sub-data.[].more-data.target' --list --depth 2
 ```
+
+Scan through files that contain XML blocks amongst regular text and do an analysis:
+```
+bin/docmgr --file ~/Downloads/DATA_012345.log --multi > ~/DATA_012345.dat
+```

@@ -3,6 +3,9 @@
 import json
 import xmltodict
 import logging
+import io
+import re
+import itertools
 import pandas as pd
 from typing import Union
 
@@ -172,6 +175,8 @@ class DocuSplit(object):
                     suffix = f"String[{len(v)}] Size: {self.get_size(v)}"
                 elif type(v) == list:
                     suffix = f"List[{len(v)}] Size: {self.get_size(v)}"
+                elif not v:
+                    suffix = "null"
                 else:
                     suffix = f"Data[{len(v)}] Size: {self.get_size(v)}"
                 print(f"{'.'.join(path)} {suffix}")
@@ -196,3 +201,54 @@ class DocuSplit(object):
             for key in data:
                 if type(data[key]) == dict:
                     return self.get_depth(data[key], depth - 1)
+
+    def path_list(self, data: dict, prefix: list = None, p_list: list = None) -> list:
+        f_list = p_list if p_list else []
+        path = prefix if prefix else []
+        for k, v in data.items():
+            key = re.sub(r'^.*:', "", k)
+            path.append(key)
+            if type(v) == dict:
+                r_list = self.path_list(v, path, p_list)
+                f_list.extend(r_list)
+            elif type(v) == list:
+                for n, item in enumerate(v):
+                    path.append(f"[{n}]")
+                    r_list = self.path_list(item, path, p_list)
+                    f_list.extend(r_list)
+                    path.pop()
+            else:
+                f_list.append(path.copy())
+            path.pop()
+        return f_list
+
+    def multi_load(self, verbose: bool = False):
+        p_list = []
+        s_list = []
+        buffer = ""
+        d = io.BytesIO(self.data)
+        f = io.TextIOWrapper(d, encoding='utf-8')
+        for line in f.readlines():
+            if re.search(r'^\s*<([^>]+)>|</(.*)>\s*$', line):
+                buffer += line
+            else:
+                if len(buffer) > 0:
+                    print(" === Block ===")
+                    data_dict = xmltodict.parse(buffer)
+                    self.walk_layout(data_dict, verbose=verbose)
+                    block_list = self.path_list(data_dict)
+                    for item in block_list:
+                        print(item)
+                    p_list.extend(block_list)
+                    buffer = ""
+        print(" === Common Elements ===")
+        for n, item in enumerate(p_list):
+            for x, s in enumerate(p_list):
+                if x == n:
+                    continue
+                if item == s:
+                    s_list.append(item)
+        s_list.sort()
+        r_list = list(k for k, _ in itertools.groupby(s_list))
+        for item in r_list:
+            print(item)

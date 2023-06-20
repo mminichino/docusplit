@@ -31,6 +31,7 @@ class Params(object):
         parser.add_argument("-v", "--verbose", action="store_true", help="Verbose")
         parser.add_argument("--depth", action="store", help="Start Depth", type=int, default=0)
         parser.add_argument("-i", "--indent", action="store_true", help="Indent JSON Dump")
+        parser.add_argument("--multi", action="store_true", help="Process Multi-XML Element File")
         self.args = parser.parse_args()
 
     @property
@@ -60,8 +61,12 @@ def manual_1(parameters):
             d = DocuSplit(contents, parameters.depth)
             d.dump_to_json(parameters.indent)
     else:
-        d = DocuSplit(contents, parameters.depth)
-        d.dump_stats(parameters.verbose)
+        if parameters.multi:
+            d = DocuSplit(contents, parameters.depth)
+            d.multi_load(parameters.verbose)
+        else:
+            d = DocuSplit(contents, parameters.depth)
+            d.dump_stats(parameters.verbose)
 
 
 p = Params()
